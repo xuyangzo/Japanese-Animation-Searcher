@@ -1,3 +1,5 @@
+# ！！！EXEC文件目前无法正确保存图片（正在尝试解决！！！）
+
 # project里除了main.py外一共有4个模块
 
 # 包括GUI.py（建立GUI）、spider.py（爬虫）、random_search.py（随机搜索）
