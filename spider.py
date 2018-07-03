@@ -1,7 +1,6 @@
 import re
 import urllib.request
 import os
-from random_search import *
 
 
 """
@@ -54,70 +53,39 @@ def getHTML2(myurl):
 
 """
 Retrieve data
-但无法解决urlretrieve时403 forbidden的问题
-"""
-def getImage(data):
-
-    # achieve image urls
-    imgre = re.compile(r'src=\"(.+\.jpg.*)\" alt="(\d*[A-Z]+-\d+).*"')
-    # imgre = re.compile(r'src=\"(.+\.gif)\"')
-    imglist = imgre.findall(data)
-
-    # declare path to save image
-    path = "images/"
-
-    # process image
-    if not os.path.isdir(path):
-        os.makedirs(path)
-
-    for singleimg in imglist:
-        urllib.request.urlretrieve(singleimg[0], "{0}{1}.jpg".format(path, singleimg[1]))
-
-    return imglist
-
-
-"""
-Retrieve data
 解决了urlretrieve时403 forbidden的问题
 """
-def getImage2(data, regex=""):
+def getImage2(data, path):
 
     # achieve image urls
 
     imglist = []
 
-    # random search
-    if regex != "":
-        imgre = re.compile(regex)
-        imglist = imgre.findall(data)
 
-    # search when given specific website
-    else:
-        decode_imgre = []
-        imgre0 = re.compile(r'src=\"//(gif-jpg\.com.+\.jpg)\" alt=\"(\d*[A-Z]*-\d+)\"')
-        imgre1 = re.compile(r'src=\"(.+\.jpg.*)\" alt="(\d*[A-Z]*-\d+).*"')
-        imgre2 = re.compile(r'src=\"(.+\.jpg.*)\" .* alt=\".*【(\d*[A-Z]*-\d+)】.*\"')
-        imgre3 = re.compile((r'file=\"(.+\.png)\" .* alt="(\d*[A-Z]*-\d+)"'))
-        imgre4 = re.compile(r'alt=\"(\d*[A-Z]*-\d+)\" data-original="//(.+\.jpg)"')
-        imgre5 = re.compile(r'src=\"(.+\.jpg.*)\" .* alt=\".*(\d*[A-Z]*-\d+).*"')
-        decode_imgre.append(imgre0)
-        decode_imgre.append(imgre1)
-        decode_imgre.append(imgre2)
-        decode_imgre.append(imgre3)
-        decode_imgre.append(imgre4)
-        decode_imgre.append(imgre5)
+    # search with regex
+    decode_imgre = []
+    imgre0 = re.compile(r'src=\"//(gif-jpg\.com.+\.jpg)\" alt=\"(\d*[A-Z]*-\d+)\"')
+    imgre1 = re.compile(r'src=\"(.+\.jpg.*)\" alt="(\d*[A-Z]*-\d+).*"')
+    imgre2 = re.compile(r'src=\"(.+\.jpg.*)\" .* alt=\".*【(\d*[A-Z]*-\d+)】.*\"')
+    imgre3 = re.compile((r'file=\"(.+\.png)\" .* alt="(\d*[A-Z]*-\d+)"'))
+    imgre4 = re.compile(r'alt=\"(\d*[A-Z]*-\d+)\" data-original="//(.+\.jpg)"')
+    imgre5 = re.compile(r'src=\"(.+\.jpg.*)\" .* alt=\".*(\d*[A-Z]+-\d+).*"')
+    decode_imgre.append(imgre0)
+    decode_imgre.append(imgre1)
+    decode_imgre.append(imgre2)
+    decode_imgre.append(imgre3)
+    decode_imgre.append(imgre4)
+    decode_imgre.append(imgre5)
 
-        # select decode method
-        for imgre in decode_imgre:
-            imglist += imgre.findall(data)
+    # select decode method
+    for imgre in decode_imgre:
+        imglist += imgre.findall(data)
 
-    # declare path to save image
-    path = "images/"
+    current_path = os.path.dirname(__file__)
+    print(current_path)
+
 
     # process image
-    if not os.path.isdir(path):
-        os.makedirs(path)
-
     opener = urllib.request.build_opener()
     opener.addheaders = [('User-Agent',
                           'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
@@ -133,11 +101,11 @@ def getImage2(data, regex=""):
         else:
             # deal with special url
             if "http" not in singleimg[0]:
-                urllib.request.urlretrieve("http://"+singleimg[0], "{0}{1}.jpg".format(path, singleimg[1]))
+                urllib.request.urlretrieve("http://"+singleimg[0], "{0}/{1}.jpg".format(path, singleimg[1]))
             elif "." not in singleimg[0]:
-                urllib.request.urlretrieve(singleimg[1], "{0}{1}.jpg".format(path, singleimg[0]))
+                urllib.request.urlretrieve(singleimg[1], "{0}/{1}.jpg".format(path, singleimg[0]))
             else:
-                urllib.request.urlretrieve(singleimg[0], "{0}{1}.jpg".format(path, singleimg[1]))
+                urllib.request.urlretrieve(singleimg[0], "{0}/{1}.jpg".format(path, singleimg[1]))
 
     return imglist
 
@@ -186,8 +154,6 @@ def main():
     myurl2 = "http://www.zhizhubt.net/60525.html"       # 宅男福利
     myurl3 = "https://www.zhaifanshe.com/fhku/page/2"           # 宅番社
     myurl4 = "http://lianlianyingshi8.com/category/259luxu"          #恋恋番号网
-    # myurl5 = "http://www.ttfhao.com/fanhao/"            # 天天番号
-    # myurl5 = "http://www.ximimai.com/"
     myurl5 = "https://www.8550.org/names/"
 
     # declare output file

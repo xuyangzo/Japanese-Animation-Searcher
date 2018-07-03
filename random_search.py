@@ -107,6 +107,7 @@ def selectURL():
 
 """
 Select regular expression to use for specific url
+Not implemented in current program
 """
 def selectRegex(myurl):
 

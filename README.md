@@ -1,4 +1,4 @@
-# ！！！EXEC文件目前无法正确保存图片（正在尝试解决！！！）
+# 番号搜索器version 1.2
 
 # project里除了main.py外一共有4个模块
 
@@ -9,5 +9,6 @@
 
 # dist文件夹里是unix executable file，在mac的OS X系统下可以直接打开
 # 但是在windows系统下打开的话，会出现乱码（该问题目前正在尝试解决）
+# 同样，该文件也无法在Linux系统下打开（该问题目前也正在尝试解决）
 
 # main.spec是pyinstaller的spec文件
