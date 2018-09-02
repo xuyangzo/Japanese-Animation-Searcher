@@ -1,6 +1,7 @@
 import re
 import urllib.request
 import os
+from translate import Translator
 
 
 """
@@ -9,7 +10,7 @@ one way to get HTML page
 def getHTML(myurl):
 
     # declare url and simulate browsers
-    myheaders = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
+    myheaders = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'}
 
     # open url
     req = urllib.request.Request(url=myurl, headers=myheaders)
@@ -21,39 +22,8 @@ def getHTML(myurl):
 
 
 """
-Another way to get image
-But not fully implemented yet
-"""
-def getHTML2(myurl):
-
-    # declare url and simulate browsers
-    headers = [("Host","img0.imgtn.bdimg.com"),
-                         ("Connection", "keep-alive"),
-                         ("Cache-Control", "max-age=0"),
-                         ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"),
-                         ("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36"),
-                         ("Accept-Encoding","gzip,deflate,sdch"),
-                         ("Accept-Language", "zh-CN,zh;q=0.8"),
-                         ("If-None-Match", "90101f995236651aa74454922de2ad74"),
-                         ("Referer","http://image.baidu.com/i?tn=baiduimage&ps=1&ct=201326592&lm=-1&cl=2&nc=1&word=%E4%BA%A4%E9%80%9A&ie=utf-8"),
-                         ("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT")]
-
-
-    opener = urllib.request.build_opener()
-    opener.addheaders = headers
-    data = opener.open(myurl)
-
-    # data = data.decode('utf-8')
-    for item in data:
-        print(item)
-
-    return data.read()
-
-
-
-"""
 Retrieve data
-解决了urlretrieve时403 forbidden的问题
+Solved 403 forbidden problem when urlretrieving
 """
 def getImage2(data, path):
 
@@ -63,27 +33,78 @@ def getImage2(data, path):
 
 
     # search with regex
-    decode_imgre = []
-    imgre0 = re.compile(r'src=\"//(gif-jpg\.com.+\.jpg)\" alt=\"(\d*[A-Z]*-\d+)\"')
-    imgre1 = re.compile(r'src=\"(.+\.jpg.*)\" alt="(\d*[A-Z]*-\d+).*"')
-    imgre2 = re.compile(r'src=\"(.+\.jpg.*)\" .* alt=\".*【(\d*[A-Z]*-\d+)】.*\"')
-    imgre3 = re.compile((r'file=\"(.+\.png)\" .* alt="(\d*[A-Z]*-\d+)"'))
-    imgre4 = re.compile(r'alt=\"(\d*[A-Z]*-\d+)\" data-original="//(.+\.jpg)"')
-    imgre5 = re.compile(r'src=\"(.+\.jpg.*)\" .* alt=\".*(\d*[A-Z]+-\d+).*"')
-    decode_imgre.append(imgre0)
-    decode_imgre.append(imgre1)
-    decode_imgre.append(imgre2)
-    decode_imgre.append(imgre3)
-    decode_imgre.append(imgre4)
-    decode_imgre.append(imgre5)
+    regexWebsite = []
+
+    """
+    NIPPON Animation:
+    Name --> singleimg[0]
+    Image --> singleimg[1]
+    Broadcasting Period --> singleimg[2]
+    Number of Episodes --> singleimg[3]
+    Original Author --> singleimg[4]
+    Broadcaster --> singleimg[5]
+    Airtime --> singleimg[6]
+    Story --> singleimg[7]
+    """
+    nippon = re.compile(r'<a href=\"/work/\">作品紹介</a> &gt; (.*)</p>[\s\S]*<div class=\"work-img\">\n'
+                            + r'<img width=\"\d+\" height=\"\d+\" src=\"(.+.[jp][pn]g)\"[\s\S]*'
+                            + r'<li><dl><dt><span>放送期間</span></dt><dd>(.*)</dd></dl></li>[\s\S]*'
+                            + r'<li><dl><dt><span>話　数</span></dt><dd>(.*)</dd></dl></li>[\s\S]*'
+                            + r'<li><dl><dt><span>原　作</span></dt><dd>(.*)</dd></dl></li>[\s\S]*'
+                            + r'<li><dl><dt><span>放送局</span></dt><dd>(.*)</dd></dl></li>[\s\S]*'
+                            + r'<li><dl><dt><span>放送時間</span></dt><dd>(.*)</dd></dl></li>'
+                            + r'[\s\S]*<div class="story">\n?(.*)\n?</div>'
+                            )
+
+    """
+    NIPPON Animation 2:
+    Name --> singleimg[0]
+    Image --> singleimg[1]
+    Broadcasting Period --> singleimg[2]
+    Number of Episodes --> singleimg[3]
+    Original Author --> singleimg[4]
+    Broadcaster --> singleimg[5]
+    Airtime --> singleimg[6]
+    Story --> singleimg[7]
+    """
+    nippon2 = re.compile(r'<a href=\"/work/\">作品紹介</a> &gt; (.*)</p>[\s\S]*<div class=\"work-img\">\n'
+                        + r'<img width=\"\d+\" height=\"\d+\" src=\"(.+\.[jp][pn]g)\"[\s\S]*'
+                        + r'<li><dl><dt><span>放送期間</span></dt><dd>(.*)</dd></dl></li>[\s\S]*'
+                        + r'<li><dl><dt><span>話　数</span></dt><dd>(.*)</dd></dl></li>[\s\S]*'
+                        + r'<li><dl><dt><span>原　作</span></dt><dd>(.*)</dd></dl></li>[\s\S]*'
+                        + r'<li><dl><dt><span>放送局</span></dt><dd>(.*)</dd></dl></li>[\s\S]*'
+                        + r'<li><dl><dt><span>放送時間</span></dt><dd>(.*)</dd></dl></li>'
+                        + r'[\s\S]*<div class="story">\n?([\s\S]*)\n?</div>\n</section>\n\n\n'
+                        )
+
+    """
+    Kyoto Animation: 
+    Name --> singleimg[0]
+    Image --> singleimg[1]
+    Story --> singleimg[2]
+    """
+    kyoto = re.compile(r'<h2>(.*)</h2>[\s\S]*<div class=\"worksImg\">\r\n\t*' +
+                       r'<img src=\"(.*\.jpg)\"[\s\S]*' +
+                       r'<p class=\"story\">([\s\S]*)</p>\r\n\t*<time>')
+
+    """
+    Kyoto Animation 2: 
+    Name --> singleimg[0]
+    Image --> singleimg[1]
+    Story --> singleimg[2]
+    """
+    kyoto2 = re.compile(r'<h2>(.*)</h2>[\s\S]*<div class=\"worksImg\">\r\n\t*' +
+                       r'<img src=\"(.*\.jpg)\"[\s\S]*' +
+                       r'<p class=\"story\">\r\n *([\s\S]*)</p>\r\n\t* *<time>')
+
+    regexWebsite.append(nippon)
+    regexWebsite.append(nippon2)
+    regexWebsite.append(kyoto)
+    regexWebsite.append(kyoto2)
 
     # select decode method
-    for imgre in decode_imgre:
+    for imgre in regexWebsite:
         imglist += imgre.findall(data)
-
-    current_path = os.path.dirname(__file__)
-    print(current_path)
-
 
     # process image
     opener = urllib.request.build_opener()
@@ -94,37 +115,147 @@ def getImage2(data, path):
     # deal with first imglist
     for singleimg in imglist:
 
-        # check if the file exists
-        if os.path.exists(path+singleimg[0]+".jpg") or os.path.exists(path+singleimg[1]+".jpg"):
-            return []
-        # if the file does not exist
-        else:
-            # deal with special url
-            if "http" not in singleimg[0]:
-                urllib.request.urlretrieve("http://"+singleimg[0], "{0}/{1}.jpg".format(path, singleimg[1]))
-            elif "." not in singleimg[0]:
+        # check if the image exists
+        if not os.path.exists(path + "/" + singleimg[0]+".jpg"):
+            # NIPPON Animation
+            if len(singleimg) is 8:
                 urllib.request.urlretrieve(singleimg[1], "{0}/{1}.jpg".format(path, singleimg[0]))
-            else:
-                urllib.request.urlretrieve(singleimg[0], "{0}/{1}.jpg".format(path, singleimg[1]))
+            elif len(singleimg) is 3:
+                urllib.request.urlretrieve("http://www.kyotoanimation.co.jp/" + singleimg[1],
+                                           "{0}/{1}.jpg".format(path, singleimg[0]))
+
+        # check if name exists
+        if not os.path.exists(path+"/result.txt"):
+
+            # declare output file
+            outFile = open(path + "/result.txt", "a")
+
+            if len(singleimg) is 8:
+                # process potential <br> tag in Story
+                strx = str(singleimg[7])
+                strx = strx.replace("<br>", "")
+                strx = strx.replace("<br />", "")
+
+                # translate the story
+                translation = translatorGoogle(strx)
+
+                # print
+                print("Name: " + singleimg[0] + "\n\n" +
+                      "Broadcasting Period: " + singleimg[2] + "\n\n" +
+                      "Number of Episodes: " + singleimg[3] + "\n\n" +
+                      "Original Author: " + singleimg[4] + "\n\n" +
+                      "Broadcaster: " + singleimg[5] + "\n\n" +
+                      "Airtime: " + singleimg[6] + "\n\n" +
+                      "Story: \n" + strx + "\n\n" +
+                      "Story Translation: \n" + translation + "\n\n" +
+                      "====================================================================" +
+                      "\n\n\n\n",
+                      file=outFile)
+
+            elif len(singleimg) is 3:
+                # process potential <br> tag in Story
+                strx = str(singleimg[2])
+                strx = strx.replace("<br />", "")
+                strx = strx.replace("\t", "")
+                strx = strx.replace("\r", "")
+                strx = strx.replace("\n", "")
+                strx = strx.replace("<br>", "\n")
+
+                # print
+                print("Name: " + singleimg[0] + "\n\n" +
+                      "Story: \n" + strx + "\n\n" +
+                      "====================================================================" +
+                      "\n\n\n\n",
+                      file=outFile)
+
+            outFile.close()
+        else:
+            inFile = open(path+"/result.txt", "r")
+            allText = inFile.read()
+
+            if singleimg[0] not in allText:
+                # declare output file
+                outFile = open(path+"/result.txt", "a")
+
+                if len(singleimg) is 8:
+                    # process potential <br> tag in Story
+                    strx = str(singleimg[7])
+                    strx = strx.replace("<br>", "")
+                    strx = strx.replace("<br />", "")
+
+                    # translate the story
+                    translation = translatorGoogle(strx)
+                    translation.replace("&#39; ", "")
+
+                    # print
+                    print("Name: " + singleimg[0] + "\n\n" +
+                          "Broadcasting Period: " + singleimg[2] + "\n\n" +
+                          "Number of Episodes: " + singleimg[3] + "\n\n" +
+                          "Original Author: " + singleimg[4] + "\n\n" +
+                          "Broadcaster: " + singleimg[5] + "\n\n" +
+                          "Airtime: " + singleimg[6] + "\n\n" +
+                          "Story: \n" + strx + "\n\n" +
+                          "Story Translation: \n" + translation + "\n\n" +
+                          "===================================================================="+
+                          "\n\n\n\n",
+                          file=outFile)
+
+                elif len(singleimg) is 3:
+                    # process potential <br> tag in Story
+                    strx = str(singleimg[2])
+                    strx = strx.replace("<br />", "")
+                    strx = strx.replace("\t", "")
+                    strx = strx.replace("\r", "")
+                    strx = strx.replace("\n", "")
+                    strx = strx.replace("<br>", "\n")
+
+                    # print
+                    print("Name: " + singleimg[0] + "\n\n" +
+                          "Story: \n" + strx + "\n\n" +
+                          "====================================================================" +
+                          "\n\n\n\n",
+                          file=outFile)
+
+                outFile.close()
+
+            inFile.close()
 
     return imglist
-
 
 """
 Get more urls when given url
 """
 def getURL(data):
 
-    # set regex
-    urlgre = re.compile(r'href=\"(http:.+\.html)\"')
-    urllist = urlgre.findall(data)
+    # set regex for different website
+    rawURL = []
+    urllist = []
+    nippon = re.compile(r'<dt><a href=\"(.*)\">.*</a></dt>\n<dd class=')
+    kyoto = re.compile(r'<li class=\"\">\r\n\t*<a href=\"(.*)\" title=')
+
+    rawURL.append(nippon)
+    rawURL.append(kyoto)
+
+    for singleURL in rawURL:
+        obtainedSTR = singleURL.findall(data)
+        obtainedSTR = ["http://www.kyotoanimation.co.jp" + url if "www" not in url else url for url in obtainedSTR]
+        urllist += obtainedSTR
 
     return urllist
 
+"""
+Translate Japanese to English using Google Translator
+Need to connect to Internet to use it
+"""
+def translatorGoogle(text):
+    translator = Translator(to_lang="en", from_lang="ja")
+    translation = translator.translate(text)
+    return translation
 
 
 """
-将番号打印在本地txt文档里
+Save output to local file
+For test only
 """
 def PrintData(myurl, outFile):
 
@@ -150,20 +281,24 @@ main function only for test
 def main():
 
     # declare url
-    myurl1 = "http://www.zhucai8.cc/"  # 番号库
-    myurl2 = "http://www.zhizhubt.net/60525.html"       # 宅男福利
-    myurl3 = "https://www.zhaifanshe.com/fhku/page/2"           # 宅番社
-    myurl4 = "http://lianlianyingshi8.com/category/259luxu"          #恋恋番号网
-    myurl5 = "https://www.8550.org/names/"
+    website0 = "http://www.nippon-animation.co.jp/work/meisaku/"
+    website1 = "http://www.kyotoanimation.co.jp/en/works/"
+    website2 = "http://www.nippon-animation.co.jp/work/family/"
+
+    test = "http://www.kyotoanimation.co.jp/en/works/euphoniumMovie/"
 
     # declare output file
-    # outFile = open("output.txt", "w")
-    # outFile.truncate()
+    outFile = open("/Users/lynch0114/Downloads/output2.txt", "w")
+    outFile.truncate()
 
-    data = getHTML(myurl5)
+    data = getHTML(website2)
+    print(data, file=outFile)
 
-    print(getImage2(data))
+    # save image
+    getImage2(data, "/Users/lynch0114/Downloads/test")
     # ConvertAll(path="images/", new_path="ConvertedImages/")
+
+    # translatorGoogle("あなたはおばあちゃん")
 
 if __name__ == "__main__":
     main()
