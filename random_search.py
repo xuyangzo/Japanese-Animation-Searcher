@@ -206,52 +206,10 @@ def selectURL():
     allURl.append("http://a1p.jp/works/robikero/")
     allURl.append("http://a1p.jp/works/zenmaizamurai/")
 
-
-
-
-
-
-
-
-
-
-
-
-
     # randomly select one url
     myurl = random.choice(allURl)
 
     return myurl
-
-
-"""
-Select regular expression to use for specific url
-Not implemented in current program
-"""
-def selectRegex(myurl):
-
-    imgre1 = 'src=\"//(gif-jpg\.com.+\.jpg)\" alt=\"(\d*[A-Z]+-\d+)\"'       # 番号库
-    imgre2 = 'src=\"(.+\.jpg.*)\" alt="(\d*[A-Z]+-\d+).*"'         # 宅番社
-    imgre3 = 'src=\"(.+\.jpg.*)\" .* alt=\".*【(\d*[A-Z]+-\d+)】.*\"'       # 恋恋番号网
-    imgre4 = 'file=\"(.+\.png)\" .* alt="(\d*[A-Z]+-\d+)"'       # 宅男福利
-
-    regex = []
-    regex.append(imgre1)
-    regex.append(imgre2)
-    regex.append(imgre3)
-    regex.append(imgre4)
-
-
-    if "zhizhu" in myurl:
-        return regex[3]
-    elif "zhaifanshe" in myurl:
-        return regex[2]
-    elif "lianlianyingshi" in myurl:
-        return regex[1]
-    elif "zhucai" in myurl:
-        return regex[0]
-    else:
-        return ""
 
 
 """

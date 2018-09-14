@@ -10,7 +10,6 @@
 <br />
 <br />
 **--NEXT VERSION**
-_(Below are some functionalities that I am trying to accompilsh for next version)_
 - List of Animations classified by corporations rather than simply random search
 - Present searched items on an online webpage and extend user access
 - Add corresponding translations to animation name and staff

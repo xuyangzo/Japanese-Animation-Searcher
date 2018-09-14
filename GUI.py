@@ -8,7 +8,7 @@ import os
 
 """ 
 Get absolute path to resource, 
-works for dev and for PyInstaller 
+works for dev and for PyInstaller(?)
 """
 def resource_path(relative_path):
     try:
