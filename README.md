@@ -1,14 +1,17 @@
-# 番号搜索器version 1.2
+## Japanese Animation Searcher version 1.3
 
-# project里除了main.py外一共有4个模块
+**--UPDATE NOTE--**
+- Add `A1-Picture` to `Supported Corporations`
+- Add `Every Possible Animation` of `A1-Picture` to `Random Search` functionality 
+- Optimize algorithm to skip items that have already been searched
+- Modified GUI to make it looks better
 
-# 包括GUI.py（建立GUI）、spider.py（爬虫）、random_search.py（随机搜索）
 
-# ConvertGIF.py用于将jpg文件转换成gif文件（因为tkinter添加图片时只允许gif格式的图片）
-# 但是ConvertGIF.py并没有在番号搜索器里import
+**--NEXT VERSION**
+_(Below are some functionalities that I am trying to accompilsh for next version)_
+- List of Animations classified by corporations rather than simply random search
+- Present searched items on an online webpage and extend user access
+- Add corresponding translations to animation name and staff
+- Export to EXEC file (accomplished in version 1.2, but facing a mysterious error now)
 
-# dist文件夹里是unix executable file，在mac的OS X系统下可以直接打开
-# 但是在windows系统下打开的话，会出现乱码（该问题目前正在尝试解决）
-# 同样，该文件也无法在Linux系统下打开（该问题目前也正在尝试解决）
-
-# main.spec是pyinstaller的spec文件
+Thank you for using!
