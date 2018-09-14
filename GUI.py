@@ -210,10 +210,15 @@ def ProcessGUI():
 main() function only for test
 """
 def main():
+
+    # path
     # current_path = os.path.dirname(__file__)
     # parent_path = os.path.dirname(current_path)
     # path = parent_path + "/ConvetedImages/"
+
     ProcessGUI()
+
+
 
 if __name__ == "__main__":
     main()

@@ -3,7 +3,6 @@ import urllib.request
 import os
 from translate import Translator
 
-
 """
 one way to get HTML page
 """
@@ -97,14 +96,29 @@ def getImage2(data, path):
                        r'<img src=\"(.*\.jpg)\"[\s\S]*' +
                        r'<p class=\"story\">\r\n *([\s\S]*)</p>\r\n\t* *<time>')
 
+    """
+    A1-Pictures:
+    Image --> singleimg[0]
+    Name --> singleimg[1]
+    Introduction --> singleimg[2]
+    Staff --> singleimg[3]
+    """
+    a1p = re.compile(r'<p class="keyvisual"><img width=\".*\" height=\".*\" src=\"(.*\.jpg)\"'+
+                     r'[\s\S]*<p class=\"japanese\">(.*)</p>' +
+                     r'[\s\S]*<div class=\"introduction\"><h3>Introduction</h3><p>\n([\s\S]*)<p></p></div>\n' +
+                     r'<div class="staff"><h3>Staff</h3><p>([\s\S]*)<div class="cast">')
+
     regexWebsite.append(nippon)
     regexWebsite.append(nippon2)
     regexWebsite.append(kyoto)
     regexWebsite.append(kyoto2)
+    regexWebsite.append(a1p)
 
     # select decode method
     for imgre in regexWebsite:
         imglist += imgre.findall(data)
+
+    print(imglist)
 
     # process image
     opener = urllib.request.build_opener()
@@ -123,6 +137,8 @@ def getImage2(data, path):
             elif len(singleimg) is 3:
                 urllib.request.urlretrieve("http://www.kyotoanimation.co.jp/" + singleimg[1],
                                            "{0}/{1}.jpg".format(path, singleimg[0]))
+            elif len(singleimg) is 4:
+                urllib.request.urlretrieve(singleimg[0], "{0}/{1}.jpg".format(path, singleimg[1]))
 
         # check if name exists
         if not os.path.exists(path+"/result.txt"):
@@ -168,7 +184,38 @@ def getImage2(data, path):
                       "\n\n\n\n",
                       file=outFile)
 
+            elif len(singleimg) is 4:
+                # process potential <br> tag in Story
+                strs = str(singleimg[2])
+                strs = strs.replace("<br />", "\n")
+                strs = strs.replace("\r", "")
+                strs = strs.replace("\n", "")
+                strs = strs.replace("</p>", "")
+
+                # process potential space in name
+                strn = str(singleimg[1])
+                strn = strn.replace(" ", "")
+
+                #process potential html tag in staff
+                strsta = str(singleimg[3])
+                strsta = strsta.replace("<br />", "")
+                strsta = strsta.replace("</p>", "")
+                strsta = strsta.replace("</div>", "")
+
+                # translate the story
+                translation = translatorGoogle(strs)
+
+                # print
+                print("Name: " + strn + "\n\n" +
+                      "Story: \n" + strs + "\n\n" +
+                      "Story Translation: \n" + translation + "\n\n" +
+                      "Staff: \n" + strsta + "\n\n" +
+                      "====================================================================" +
+                      "\n\n\n\n",
+                      file=outFile)
+
             outFile.close()
+
         else:
             inFile = open(path+"/result.txt", "r")
             allText = inFile.read()
@@ -216,6 +263,36 @@ def getImage2(data, path):
                           "\n\n\n\n",
                           file=outFile)
 
+                elif len(singleimg) is 4:
+                    # process potential <br> tag in Story
+                    strs = str(singleimg[2])
+                    strs = strs.replace("<br />", "\n")
+                    strs = strs.replace("\r", "")
+                    strs = strs.replace("\n", "")
+                    strs = strs.replace("</p>", "")
+
+                    # process potential space in name
+                    strn = str(singleimg[1])
+                    strn = strn.replace(" ", "")
+
+                    # process potential html tag in staff
+                    strsta = str(singleimg[3])
+                    strsta = strsta.replace("<br />", "")
+                    strsta = strsta.replace("</p>", "")
+                    strsta = strsta.replace("</div>", "")
+
+                    # translate the story
+                    translation = translatorGoogle(strs)
+
+                    # print
+                    print("Name: " + strn + "\n\n" +
+                          "Story: \n" + strs + "\n\n" +
+                          "Story Translation: \n" + translation + "\n\n" +
+                          "Staff: \n" + strsta + "\n\n" +
+                          "====================================================================" +
+                          "\n\n\n\n",
+                          file=outFile)
+
                 outFile.close()
 
             inFile.close()
@@ -232,9 +309,11 @@ def getURL(data):
     urllist = []
     nippon = re.compile(r'<dt><a href=\"(.*)\">.*</a></dt>\n<dd class=')
     kyoto = re.compile(r'<li class=\"\">\r\n\t*<a href=\"(.*)\" title=')
+    a1p = re.compile(r'<p class="title"><a href=\"(http://a1p.jp/works/.*)\"')
 
     rawURL.append(nippon)
     rawURL.append(kyoto)
+    rawURL.append(a1p)
 
     for singleURL in rawURL:
         obtainedSTR = singleURL.findall(data)
@@ -284,15 +363,18 @@ def main():
     website0 = "http://www.nippon-animation.co.jp/work/meisaku/"
     website1 = "http://www.kyotoanimation.co.jp/en/works/"
     website2 = "http://www.nippon-animation.co.jp/work/family/"
+    website3 = "http://a1p.jp/works/"
 
-    test = "http://www.kyotoanimation.co.jp/en/works/euphoniumMovie/"
+    test = "http://a1p.jp/works/utaprik/"
 
     # declare output file
     outFile = open("/Users/lynch0114/Downloads/output2.txt", "w")
     outFile.truncate()
 
-    data = getHTML(website2)
+    data = getHTML(test)
     print(data, file=outFile)
+
+    print(getURL(data))
 
     # save image
     getImage2(data, "/Users/lynch0114/Downloads/test")
