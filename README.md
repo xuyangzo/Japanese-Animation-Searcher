@@ -260,6 +260,7 @@
 2. 2560 x 1600 Resolution
 3. Intel Iris Plus Graphics 640 1536 MB
 <br>
+
 ## Spyder Test
 1. Tested websites
     1. `http://www.nippon-animation.co.jp/work/meisaku/`
